@@ -1,6 +1,6 @@
 package actors
 
-import actors.ProcessOrderActor.ActionExecuted
+import actors.ProcessOrderActor.{ActionExecuted, ProcessOrder}
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import api.WebServer.system
 
@@ -14,7 +14,6 @@ object RegisterOrderActor{
 
   case class SubmitOrder(order: Order)
   case class GetOrders()
-
   def props: Props = Props[RegisterOrderActor]
   val processOrderActor: ActorRef = system.actorOf(ProcessOrderActor.props, "processOrderActor")
 
@@ -24,7 +23,6 @@ class RegisterOrderActor extends Actor with ActorLogging {
 
   import RegisterOrderActor._
 
-  var flowActorRef: ActorRef = _
   var orders = Set.empty[Order]
 
   def receive: Receive = {
@@ -32,19 +30,8 @@ class RegisterOrderActor extends Actor with ActorLogging {
       sender() ! Orders(orders.toSeq)
 
     case SubmitOrder(order) =>
-      flowActorRef = sender()
+      log.info("registering the order")
       orders += order
-      //context.become(processOrder(sender(), orders))
-      //log.info("context became processOrder")
-      processOrderActor ! order
-
-    case action: ActionExecuted =>
-      flowActorRef ! action
-  }
-
-  def processOrder(flowActorRef: ActorRef, orders: Set[Order]): Receive = {
-    case action: ActionExecuted =>
-      flowActorRef ! action
-    case someThingElse => log.warning("did not receive action executed, received " + someThingElse)
+      processOrderActor ! ProcessOrder(order, sender())
   }
 }
