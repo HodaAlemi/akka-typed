@@ -1,9 +1,9 @@
 package actors
 
 import actors.RegisterOrderActor.Order
-import akka.actor.typed.{ActorSystem, Behavior}
+import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors
-import akka.actor.{ActorRef, Props}
+import akka.actor.ActorRef
 
 object ProcessOrderActor {
   case class ActionExecuted(description: String)
