@@ -1,8 +1,12 @@
 package actors
 
-import actors.ProcessOrderActor.{ActionExecuted, ProcessOrder}
-import akka.actor.{Actor, ActorLogging, ActorRef, Props}
-import api.WebServer.system
+import actors.ProcessOrderActor.ProcessOrder
+import akka.actor.TypedActor.context
+import akka.actor.typed.ActorRef
+import akka.actor.typed.scaladsl.adapter.ClassicActorContextOps
+import akka.actor.{ActorLogging, Props, Actor => untypedActor}
+import akka.actor.typed.scaladsl.adapter._
+
 
 
 object RegisterOrderActor{
@@ -15,15 +19,15 @@ object RegisterOrderActor{
   case class SubmitOrder(order: Order)
   case class GetOrders()
   def props: Props = Props[RegisterOrderActor]
-  val processOrderActor: ActorRef = system.actorOf(ProcessOrderActor.props, "processOrderActor")
-
 }
 
-class RegisterOrderActor extends Actor with ActorLogging {
+class RegisterOrderActor extends untypedActor with ActorLogging {
 
   import RegisterOrderActor._
 
   var orders = Set.empty[Order]
+  val processOrderActor: ActorRef[ProcessOrderActor.ProcessOrder] = context.spawn(ProcessOrderActor.behavior, "processOrderActor")
+  context.watch(processOrderActor)
 
   def receive: Receive = {
     case GetOrders() =>
