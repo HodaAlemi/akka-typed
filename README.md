@@ -1,4 +1,4 @@
-# [OpenTracing](https://opentracing.io/docs/overview/what-is-tracing/)
+# AKKA Typed
 
 ## Introduction
 This project I'm migrating a classic Akka Actor application to an Akka typed application. 
